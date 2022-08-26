@@ -19,7 +19,7 @@ class MyTcpListener
             IPAddress localAddr = IPAddress.Parse("127.0.0.1");
 
             // TcpListener server = new TcpListener(port);
-            server = new TcpListener(localAddr, port);
+            server = new TcpListener(IPAddress.Any, port);
 
             // Start listening for client requests.
             server.Start();
@@ -33,7 +33,7 @@ class MyTcpListener
             {
                 try
                 {
-                    Console.Write($"Waiting for a connection using ip address {localAddr} :: {port} ");
+                    Console.Write($"Waiting for a connection using ip address {localAddr}/{GetPublicIP()} :: {port} ");
 
                     // Perform a blocking call to accept requests.
                     // You could also use server.AcceptSocket() here.
@@ -55,12 +55,6 @@ class MyTcpListener
                         data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                         Console.WriteLine("Received: {0}", data);
                     }
-
-                    //i = stream.Read(bytes, 0, bytes.Length);
-                    //data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-                    //Console.WriteLine("Received: {0}", data);
-                    //stream.Close();
-
 
                     // Shutdown and end connection
                     client.Close();
@@ -84,5 +78,19 @@ class MyTcpListener
 
         Console.WriteLine("\nHit enter to continue...");
         Console.Read();
+    }
+
+    public static string GetPublicIP()
+    {
+        string url = "http://checkip.dyndns.org";
+        System.Net.WebRequest req = System.Net.WebRequest.Create(url);
+        System.Net.WebResponse resp = req.GetResponse();
+        System.IO.StreamReader sr = new System.IO.StreamReader(resp.GetResponseStream());
+        string response = sr.ReadToEnd().Trim();
+        string[] a = response.Split(':');
+        string a2 = a[1].Substring(1);
+        string[] a3 = a2.Split('<');
+        string a4 = a3[0];
+        return a4;
     }
 }
